@@ -14,12 +14,15 @@ class Obstacle(pygame.sprite.Sprite):  # класс неразрушаемого
         pygame.sprite.Sprite.__init__(self)
         self.image = self.IMAGES[texture]
         self.rect = self.image.get_rect(topleft=pos)
+        # флаг отвечает за простреливаемость тайла
+        self.hollow = True if texture == 0 else False
 
         # сохраняет ссылку на группу снарядов, чтобы разрушать снаряды при столкновении спрепятствием
         self.missiles_group = missiles_group
 
     def update(self, *args, **kwargs):  # уничтожает попавшие в объект снаряды
-        pygame.sprite.spritecollide(self, self.missiles_group, True)
+        if self.hollow:
+            pygame.sprite.spritecollide(self, self.missiles_group, True)
 
 
 class BreakableObstacle(pygame.sprite.Sprite):  # класс разрушаемого препятствия

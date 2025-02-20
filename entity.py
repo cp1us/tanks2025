@@ -91,6 +91,9 @@ class Tank(pygame.sprite.Sprite):  # класс танка игрока
     def is_alive(self):  # возращает True, если танк жив, т.е. его hp > 0
         return self.hp > 0
 
+    def get_hp(self):
+        return self.hp
+
     def get_way(self, key):  # принимает ключ клавиши и относительно него возвращает сторону движения танка
         match key:
             case pygame.K_w:

@@ -20,17 +20,21 @@ window = 1
 
 def start_screen(surface):  # стартовый экран
     # логотип стартового экрана
-    logo = Text(surface, (WIDTH // 2, HEIGHT // 4), 'Танки 2025', (34, 139, 34), (14, 59, 14), 100)
+    logo = Text(surface, (WIDTH // 2, HEIGHT // 4), 'Танки 2025', (4, 189, 59), (0, 125, 52), 100)
     # кнопки играть и выйти
     play_button = Button(surface, (WIDTH // 2, HEIGHT // 2), 'Играть', (250, 183, 0), (255, 210, 60), (180, 120, 0))
     quit_button = Button(surface, (WIDTH // 2, HEIGHT // 1.5), 'Выход', (204, 0, 0), (255, 0, 0), (120, 0, 0))
+
+    background = pygame.image.load("images/menu.png").convert_alpha()
+    back_rect = background.get_rect(center=(WIDTH // 2, HEIGHT // 2))
 
     running = True
     while running:
         global window
         clock.tick(FPS)
-
-        surface.fill('black')
+        # отрисовка заднего фона
+        surface.fill((0, 0, 0))
+        surface.blit(background, back_rect)
         # отрисовка логотипа и кнопок
         logo.draw()
         play_button.draw(pygame.mouse.get_pos())
@@ -102,7 +106,7 @@ def load_level(level_name, game_surface):  # загрузка уровня - ф�
                         tanks_group.add(Enemy(pos, game_surface, missiles_group, particles_group, obstacles_group,
                                               1, 2))
     if player is None:
-        raise Exception('Ошибка при чтении сохранения')
+        raise FileNotFoundError('Ошибка при чтении сохранения')
     return missiles_group, obstacles_group, tanks_group, particles_group, player
 
 
@@ -177,9 +181,14 @@ def level(surface, game_surface, missiles_group, obstacles_group, tanks_group, p
     # конечные заставки победы и поражения
     end_victory_text = Text(game_surface, pos, 'ПОБЕДА', (25, 255, 25), (0, 179, 0))
     end_defeat_text = Text(game_surface, pos, 'ПОРАЖЕНИЕ', (255, 0, 0), (153, 0, 0))
+
+    help_movement = Text(surface, (150, 100), 'Управление:WASD', (255, 255, 255), (100, 100, 100), 30)
+    help_shoot = Text(surface, (150, 150), 'Стрельба:SPACE', (255, 255, 255), (100, 100, 100), 30)
     # счетчик оставшихся противников
-    enemy_counter = Text(surface, (WIDTH - 150, 100), f'Враги: x{str(len(tanks_group) - 1)}', (255, 255, 255),
-                         (100, 100, 100), 30)
+    enemy_counter = Text(surface, (WIDTH - 150, 100), f'Враги: {str(len(tanks_group) - 1)}', (255, 255, 255),
+                         (100, 100, 100), 30, (-3, -3))
+    hp_counter = Text(surface, (WIDTH - 150, 200), f'Жизни: {player.get_hp()}', (255, 0, 0),
+                      (153, 0, 0), 30, (-3, -3))
 
     running = True
     while running:
@@ -192,18 +201,22 @@ def level(surface, game_surface, missiles_group, obstacles_group, tanks_group, p
             for y in range(0, 22):
                 game_surface.blit(background, (x * 32, y * 32))
         # отрисовка спрайтов
-        missiles_group.draw(game_surface)
         tanks_group.draw(game_surface)
         obstacles_group.draw(game_surface)
+        missiles_group.draw(game_surface)
         particles_group.draw(game_surface)
+        help_movement.draw()
+        help_shoot.draw()
         enemy_counter.draw()
+        hp_counter.draw()
         # обновление спрайтов
-        missiles_group.update()
         tanks_group.update()
         obstacles_group.update()
+        missiles_group.update()
         particles_group.update()
         # обновление счетчика врагов
-        enemy_counter.change_text(f'Враги: x{str(len(tanks_group) - 1)}')
+        enemy_counter.change_text(f'Враги: {str(len(tanks_group) - 1)}')
+        hp_counter.change_text(f'Жизни: {player.get_hp()}')
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
